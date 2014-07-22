@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Ui
+Bundle-SymbolicName: com.webiz.component.ui;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: com.webiz.component.ui.Activator
+Bundle-Vendor: WEBIZ
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.ui.ide
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Import-Package: org.eclipse.jdt.core,
+ org.eclipse.jdt.ui

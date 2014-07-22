@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            name="Webtree"
+            id="com.webiz.component.ui">
+      </category>
+      <wizard
+            name="Component"
+            icon="icons/sample.gif"
+            category="com.webiz.component.ui"
+            class="com.webiz.component.ui.wizards.CreateComponentWizard"
+            id="com.webiz.component.ui.wizards.CreateComponentWizard">
+      </wizard>
+   </extension>
+
+</plugin>
