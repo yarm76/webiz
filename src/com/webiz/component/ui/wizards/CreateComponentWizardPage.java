@@ -24,6 +24,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
@@ -40,25 +41,15 @@ import org.eclipse.ui.dialogs.ResourceSelectionDialog;
 
 public class CreateComponentWizardPage extends WizardPage {
 	private Text projectText;
-	
 	private Text packageText;
-	
-	private Text sourceText;;
-	
+	private Text skinText;;
 	private Text descText;;
-	
 	private Text titleText;
-	
 	private Combo componentType;
-
 	private ISelection selection;
-	
 	private Button commonButton;
-	
 	private Button cloudButton;
-	
 	private Text cloudText;
-	
 
 	/**
 	 * Constructor for SampleNewWizardPage.
@@ -68,7 +59,7 @@ public class CreateComponentWizardPage extends WizardPage {
 	public CreateComponentWizardPage(ISelection selection) {
 		super("wizardPage");
 		setTitle("Webtree Component Project");
-		setDescription("This wizard creates a new file with *.mpe extension that can be opened by a multi-page editor.");
+		setDescription("");
 		this.selection = selection;
 	}
 
@@ -79,12 +70,14 @@ public class CreateComponentWizardPage extends WizardPage {
 		Composite container = new Composite(parent, SWT.NULL);
 		GridLayout layout = new GridLayout();
 		container.setLayout(layout);
+		container.setLayoutData(new GridData(SWT. FILL,SWT.FILL, true, true, 1, 1));
 		layout.numColumns = 3;
 		layout.verticalSpacing = 9;
 		
 		Label label = new Label(container, SWT.NULL);
 		label.setText("&Project:");
 		projectText = new Text(container, SWT.BORDER | SWT.SINGLE);
+		projectText.setEnabled(false);
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 		projectText.setLayoutData(gd);
 		projectText.addModifyListener(new ModifyListener() {
@@ -100,19 +93,54 @@ public class CreateComponentWizardPage extends WizardPage {
 				handleBrowse();
 			}
 		});
+	 
 		
+		SelectionListener selectionListener = new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent event) {
+	        	Button button = ((Button) event.widget);
+	        	if(button.getSelection()==true){
+	        		dialogChanged();
+	        		updatepackage();
+	        	}
+	         };
+	      };
 		
 		label = new Label(container, SWT.NULL);
 		label.setText("&Type");
 		
-		commonButton = new Button(container, SWT.RADIO);
-	    commonButton.setText("Common (Common Basic Component)");
+		Group group = new Group(container, SWT.NONE);
+		group.pack();
+		group.setLayout(new GridLayout(2, false));
+		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		
+		/*RowLayout rowLayout = new RowLayout(SWT.VERTICAL);
+		rowLayout.wrap = true;
+		group.setLayout(rowLayout);*/
+		commonButton = new Button(group, SWT.RADIO);
+	    commonButton.setText("Common Module");
 	    commonButton.setSelection(true);
+	    commonButton.addSelectionListener(selectionListener);
+	    commonButton.pack();
+	    commonButton.setLocation(10, 10);
+	    new Label(group, SWT.NULL);
+	    
+	    cloudButton = new Button(group, SWT.RADIO);
+	    cloudButton.setText("Cloud Module : SITE ID ");
+	    cloudButton.pack();
+	    cloudButton.setLocation(10, 30);
+	    cloudText = new Text( group, SWT.BORDER | SWT.SINGLE);
+	    cloudText.pack();
+	    cloudText.setLocation(110, 25);
+	    cloudText.setEnabled(false);
+	    cloudText.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				updatepackage();
+				dialogChanged();
+			}
+		});
+	    cloudButton.addSelectionListener(selectionListener);
 	    new Label(container, SWT.NULL);
-	    new Label(container, SWT.NULL);
-	    cloudButton = new Button(container, SWT.RADIO);
-	    cloudButton.setText("Cloud : Project Site-spectific User Defined Cloud Name : "); 
-	    cloudText = new Text(container, SWT.BORDER | SWT.SINGLE);
+	    
 	    
 		label = new Label(container, SWT.NULL);
 		label.setText("&Category");
@@ -121,17 +149,16 @@ public class CreateComponentWizardPage extends WizardPage {
 		componentType.setVisibleItemCount(2);
 		componentType.add("Module");
 		componentType.add("Widget");
+		componentType.select(0);
 		/*Point size = new Point(200, 50);
 		componentType.setSize(size);*/
 		
 		componentType.addSelectionListener(new SelectionListener() {
-			 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				
 				updatepackage();
+				dialogChanged();
 			}
-			
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
@@ -148,8 +175,9 @@ public class CreateComponentWizardPage extends WizardPage {
 		titleText.setLayoutData(gd);
 		titleText.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
-				updatepackage();
+				System.out.println(((Text)e.widget).getText());
 				dialogChanged();
+				updatepackage();
 			}
 		});
 		
@@ -158,20 +186,16 @@ public class CreateComponentWizardPage extends WizardPage {
 		packageText = new Text(container, SWT.BORDER | SWT.SINGLE);
 		gd = new GridData(GridData.FILL_HORIZONTAL);
 		packageText.setLayoutData(gd);
-		packageText.addModifyListener(new ModifyListener() {
-			public void modifyText(ModifyEvent e) {
-				dialogChanged();
-			}
-		});
+		packageText.setEnabled(false);
 
 		label = new Label(container, SWT.NULL);
 		
 		label = new Label(container, SWT.NULL);
-		label.setText("&Source Path:");
-		sourceText = new Text(container, SWT.BORDER | SWT.SINGLE);
+		label.setText("&Skin Path:");
+		skinText = new Text(container, SWT.BORDER | SWT.SINGLE);
 		gd = new GridData(GridData.FILL_HORIZONTAL);
-		sourceText.setLayoutData(gd);
-		sourceText.addModifyListener(new ModifyListener() {
+		skinText.setLayoutData(gd);
+		skinText.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				dialogChanged();
 			}
@@ -189,15 +213,14 @@ public class CreateComponentWizardPage extends WizardPage {
 		label.setText("&Desc:");
 		descText = new Text(container, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
 		gd = new GridData(GridData.FILL_BOTH);
+		gd.heightHint = 60;
 		descText.setLayoutData(gd);
 		descText.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				dialogChanged();
 			}
 		});
-		
-		
-
+		 
 		/*ISelectionService service = getsh().getWorkbenchWindow().getSelectionService();
 		IStructuredSelection structured = (IStructuredSelection) service.getSelection("org.eclipse.jdt.ui.PackageExplorer");
 		IFile file = (IFile) structured.getFirstElement();
@@ -227,7 +250,7 @@ public class CreateComponentWizardPage extends WizardPage {
 					container = (IContainer) obj;
 				else
 					container = ((IResource) obj).getParent();
-				packageText.setText(container.getFullPath().toString());
+				 
 			}
 		}
 	}
@@ -244,7 +267,7 @@ public class CreateComponentWizardPage extends WizardPage {
 		if (dialog.open() == ContainerSelectionDialog.OK) {
 			Object[] result = dialog.getResult();
 			if (result.length == 1) {
-				projectText.setText(((Path) result[0]).toString());
+				projectText.setText(((result[0]).toString()).replace("/", ""));
 			}
 		}
 	}
@@ -256,6 +279,7 @@ public class CreateComponentWizardPage extends WizardPage {
 		if(saveTarget != null)
 		{
 		   File directory = new File(saveTarget);
+		   skinText.setText(directory.getPath());
 		}
 	}
 	
@@ -265,7 +289,7 @@ public class CreateComponentWizardPage extends WizardPage {
 		if (dialog.open() == ProjectLocationSelectionDialog.OK) {
 			Object[] result = dialog.getResult();
 			if (result.length == 1) {
-				sourceText.setText(((Path) result[0]).toString());
+				skinText.setText(((Path) result[0]).toString());
 			}
 		}
 	}
@@ -277,7 +301,7 @@ public class CreateComponentWizardPage extends WizardPage {
 		if (dialog.open() == ResourceSelectionDialog.OK) {
 			Object[] result = dialog.getResult();
 			if (result.length == 1) {
-				sourceText.setText(((Path) result[0]).toString());
+				skinText.setText(((Path) result[0]).toString());
 			}
 		}
 	}
@@ -297,66 +321,89 @@ public class CreateComponentWizardPage extends WizardPage {
 	
 	private void updatepackage(){
 
-		String packagePath="com.namo.pt.component."+componentType.getText()+"."+titleText.getText();;
+		String packagePath="com.namo.pt.component."+componentType.getText()+"."+getTitle();;
 		if(cloudButton.getSelection()){
-			packagePath = "com.namo.pt.cloud."+cloudText.getText()+".component."+componentType.getText()+"."+titleText.getText();
+			packagePath = "com.namo.pt.cloud."+cloudText.getText()+".component."+componentType.getText()+"."+getTitle();
 		}
 		
 		packageText.setText(packagePath);
+		
+		return;
 	}
 	
 	/**
 	 * Ensures that both text fields are set.
 	 */
-
 	private void dialogChanged() {
 		IResource container = ResourcesPlugin.getWorkspace().getRoot()
-				.findMember(new Path(getContainerName()));
-		String fileName = getFileName();
-
-		if (getContainerName().length() == 0) {
-			//updateStatus("source Path must be specified");
+				.findMember(new Path(getSkin()));
+		String title = getTitle();
+		String project = getProject();
+	
+		setDescription("");
+		
+		if(project.equals("")){
+			updateStatus("Project must be specified");
+			projectText.setFocus();
 			return;
 		}
-		if (container == null
-				|| (container.getType() & (IResource.PROJECT | IResource.FOLDER)) == 0) {
-			//updateStatus("File container must exist");
+		
+		if(cloudButton.getSelection() && cloudText.getText().equals("")){
+			updateStatus("cloud name must be specified");
+			cloudText.setEnabled(true);
+			cloudText.setFocus();
 			return;
 		}
-		if (!container.isAccessible()) {
-			//updateStatus("Project must be writable");
+		
+		if(commonButton.getSelection()){
+			cloudText.setEnabled(false);
+			if(!cloudText.getText().equals(""))
+				cloudText.setText("");
+		}
+		
+		if(title.length() == 0){
+			updateStatus("Title must be specified");
 			return;
 		}
-		if (fileName.length() == 0) {
-			//updateStatus("File name must be specified");
+		 
+		if (getSkin().length() == 0) {
+			updateStatus("skin Path must be specified");
 			return;
 		}
-		if (fileName.replace('\\', '/').indexOf('/', 1) > 0) {
-			//updateStatus("File name must be valid");
-			return;
-		}
-		int dotLoc = fileName.lastIndexOf('.');
-		if (dotLoc != -1) {
-			String ext = fileName.substring(dotLoc + 1);
-			if (ext.equalsIgnoreCase("mpe") == false) {
-				//updateStatus("File extension must be \"mpe\"");
-				return;
-			}
-		}
+		 
 		updateStatus(null);
 	}
 
 	private void updateStatus(String message) {
+		
 		setErrorMessage(message);
 		setPageComplete(message == null);
 	}
 
-	public String getContainerName() {
-		return sourceText.getText();
+	public String getSkin() {
+		return skinText.getText();
 	}
 
-	public String getFileName() {
+	public String getTitle() {
 		return titleText.getText();
 	}
+	
+	public String getProject(){
+		return projectText.getText();
+	}
+	
+	public String getPakcage(){
+		return packageText.getText();
+	}
+	
+	public String getComonentType(){
+		return componentType.getText();
+	}
+	
+	public String getSiteID(){
+		return cloudText.getText();
+	}
+	
+	 
 	
 }

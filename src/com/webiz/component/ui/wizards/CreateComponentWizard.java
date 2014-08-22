@@ -1,19 +1,29 @@
 package com.webiz.component.ui.wizards;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
-import org.eclipse.core.runtime.*;
-import org.eclipse.jface.operation.*;
-import java.lang.reflect.InvocationTargetException;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.core.resources.*;
-import org.eclipse.core.runtime.CoreException;
-import java.io.*;
-import org.eclipse.ui.*;
-import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.IWorkbenchWizard;
 
 /**
  * This is a sample new wizard. Its role is to create a new file 
@@ -29,6 +39,12 @@ import org.eclipse.ui.ide.IDE;
 public class CreateComponentWizard extends Wizard implements INewWizard {
 	private CreateComponentWizardPage page;
 	private ISelection selection;
+	private static final String SITE_ID = "";
+	private static final String COPOENNT_SKIN_PATH = "";
+	private static final String COPONENT_PACKAGE_NAME = "";
+	private static final String PROJECT_NAME = "";
+	private static final String COMPONENT_TPYE_NAME = "";
+	private static final String COMONENT_TITLE_NAME = "";
 
 	/**
 	 * Constructor for CreateComponentWizard.
@@ -53,12 +69,19 @@ public class CreateComponentWizard extends Wizard implements INewWizard {
 	 * using wizard as execution context.
 	 */
 	public boolean performFinish() {
-		final String containerName = page.getContainerName();
-		final String fileName = page.getFileName();
+		
+		final Map<String, Object> paramMap = new HashMap<String, Object>();
+		paramMap.put(SITE_ID, page.getSiteID());
+		paramMap.put(PROJECT_NAME, page.getProject());
+		paramMap.put(COPOENNT_SKIN_PATH, page.getSkin());
+		paramMap.put(COPONENT_PACKAGE_NAME, page.getPakcage());
+		paramMap.put(COMPONENT_TPYE_NAME, page.getComonentType());
+		paramMap.put(COMONENT_TITLE_NAME, page.getTitle());
+		
 		IRunnableWithProgress op = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException {
 				try {
-					doFinish(containerName, fileName, monitor);
+					doFinish(paramMap, monitor);
 				} catch (CoreException e) {
 					throw new InvocationTargetException(e);
 				} finally {
@@ -84,32 +107,36 @@ public class CreateComponentWizard extends Wizard implements INewWizard {
 	 * the editor on the newly created file.
 	 */
 
-	private void doFinish(
-		String containerName,
-		String fileName,
-		IProgressMonitor monitor)
-		throws CoreException {
+	private void doFinish(Map<String, Object> paramMap, IProgressMonitor monitor) throws CoreException {
 		// create a sample file
-		monitor.beginTask("Creating " + fileName, 2);
+		String projectName = (String)paramMap.get(PROJECT_NAME);
+		
+		monitor.beginTask("Creating " +projectName, 2) ;
+		
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		IResource resource = root.findMember(new Path(containerName));
+		
+		IResource resource = root.findMember(new Path(projectName));
 		if (!resource.exists() || !(resource instanceof IContainer)) {
-			throwCoreException("Container \"" + containerName + "\" does not exist.");
+			throwCoreException("project \"" + projectName + "\" does not exist.");
 		}
-		IContainer container = (IContainer) resource;
-		final IFile file = container.getFile(new Path(fileName));
-		try {
-			InputStream stream = openContentStream();
-			if (file.exists()) {
-				file.setContents(stream, true, true, monitor);
-			} else {
-				file.create(stream, true, monitor);
-			}
-			stream.close();
-		} catch (IOException e) {
-		}
+		System.out.println(this.getClass().getResource("").getPath());
+		
+		String projectRootPath = root.getLocationURI().toString() + File.separator + projectName;
+		
+		//FileUtils.copy(new File(projectRootPath+File.separator+projectRootPath), new File(""));
+		
+		//common인 경우
+			//module인 경우
+		
+			//widget인 경우
+		//cloud인 경우
+			//module인 경우
+			
+			//widget인 경우
+		  
 		monitor.worked(1);
-		monitor.setTaskName("Opening file for editing...");
+		
+		/*monitor.setTaskName("Opening file for editing...");
 		getShell().getDisplay().asyncExec(new Runnable() {
 			public void run() {
 				IWorkbenchPage page =
@@ -119,9 +146,11 @@ public class CreateComponentWizard extends Wizard implements INewWizard {
 				} catch (PartInitException e) {
 				}
 			}
-		});
-		monitor.worked(1);
+		});*/
 	}
+	
+	
+	
 	
 	/**
 	 * We will initialize file contents with a sample text.
