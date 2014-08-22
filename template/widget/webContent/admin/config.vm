@@ -1,0 +1,1349 @@
+<!-- WIDGET CONFIG PAGE (type1)-->
+<script type="text/javascript" src="/component/widget/wcontent/skins/basic/js/WContentUtil.js"></script>
+<script type="text/javascript" src="/component/widget/wcontent/js/lang-${_pt_LOCALE}.js"></script>
+<script type="text/javascript">
+	/**
+	 *	config fields for image Widget - working
+	 *	no save buttons : for live refresh 
+	 */
+	onChangeDirectApply  = true;
+	reloadWidgetOnChange = false;
+	refreshOnLoadForm    = false;
+
+	var divId = '${_pt_divId}';
+	
+    Ext.Loader.setPath('Component.widget.wcontent'  , '/component/widget/wcontent');
+
+    Ext.syncRequire(['Ext.ux.grid.column.Component',
+        'Component.widget.wcontent.admin.SelectGroupWindow',
+    'Component.widget.wcontent.admin.ConfirmUnlinkWindow',
+    'Component.widget.wcontent.admin.ContentListPanel',
+    'Component.widget.wcontent.admin.ContentPoolWindow']);
+
+    var formatStore = Ext.create('SiteEditor.store.toolbar.editing.FormatStore');
+    var fontStore = Ext.create('SiteEditor.store.toolbar.editing.FontStore');
+    var fontSizeStore = Ext.create('SiteEditor.store.toolbar.editing.FontSizeStore');
+    var lineHeightStore = Ext.create('SiteEditor.store.toolbar.editing.LineHeightStore');
+    var letterSpacingStore = Ext.create('SiteEditor.store.toolbar.editing.LetterSpacingStore');
+
+
+	var getMenuPositionDom = function(dom,eleType) {
+		var stRemainLeft = 300;
+		var ele = $(dom).get(0);
+		var dummyDiv = $('<div class="pt-floating-dummy" style="position:absolute;width:20px;height:20px;">');
+		
+		var bodyWidth = $('body').get(0).offsetWidth;
+		var domLeft = $(dom).offset().left;
+		var domTop = $(dom).offset().top;
+		
+		if((bodyWidth-domLeft)<stRemainLeft){
+			domLeft = (bodyWidth-stRemainLeft);
+		}else{
+			domLeft = (domLeft-100);
+		}
+		
+		if(eleType == 'container'){
+			domTop = domTop-25;
+		}
+
+		dummyDiv.css('left',domLeft);
+		dummyDiv.css('top' ,domTop);
+		
+		$('body').append(dummyDiv);
+		
+        return dummyDiv.get(0);
+	}
+
+
+    var editingToolFieldset = Ext.create('Ext.form.FieldSet', {
+        title: '#_pt_message("component.widget.wcontent.editingTools")',
+        layout: 'column',
+        collapsible: true,
+        border: false,
+        padding: 0,
+        defaults: {
+            margin: '0 0'
+        },
+        id:'pt-componentconfig-wcontent-fieldset-textconfig',
+        items:[
+            //add CE3
+            {
+                xtype:'combo',
+                action: 'formatCombo',
+                store: formatStore,
+                displayField: 'text',
+                valueField: 'value',
+                queryMode: 'local',
+                name:'config_format',
+                emptyText: $CODE('siteViewToolbar.combo-format'),
+                listConfig : {
+                    itemTpl : Ext.create('Ext.XTemplate', '{style}')
+				},
+            	width:70,
+                listeners: {
+                    select: function(combo, records) {
+                    	onDoCommands('formatblock',null,records[0].data.value);                    
+                    }
+                }
+            },
+			{
+                xtype:'combo',
+                action: 'fontCombo',
+                store: fontStore,
+                displayField: 'text',
+                valueField: 'value',
+                queryMode: 'local',
+                name:'config_font',
+                emptyText: $CODE('siteViewToolbar.combo-font'),
+                listConfig : {
+                    itemTpl : Ext.create('Ext.XTemplate',
+                            '<span style="font-family: {value}">{text}</span>'
+                    )},
+                width:70,
+                listeners: {
+                    select: function(combo, records) {
+                        var styleName = records[0].data.text;
+                        onDoCommands('fontname',null,records[0].data.value);
+                    }
+                }
+            },{
+                xtype:'combo',
+                action: 'sizeCombo',
+                store: fontSizeStore,
+                displayField: 'text',
+                valueField: 'value',
+                queryMode: 'local',
+                name:'config_fontsize',
+                emptyText: $CODE('siteViewToolbar.combo-size'),
+                listConfig : {
+                    itemTpl : Ext.create('Ext.XTemplate',
+                            '<span style="font-size: {value}px">{text}</span>'
+                    )},
+                editable: true,
+                width:70,
+                listeners: {
+                    select: function(combo, records) {
+                        var styleName = records[0].data.value;
+                        onDoCommands('fontsize',null,records[0].data.value);
+                    }
+                }
+            },{
+                xtype:'combo',
+                action: 'lineHeightCombo',
+                store: lineHeightStore,
+                displayField: 'text',
+                valueField: 'value',
+                queryMode: 'local',
+                name:'config_lineHeight',
+                emptyText: $CODE('siteViewToolbar.combo-lineHeight'),
+                width:90,
+                listeners: {
+                    select: function(combo, records) {
+                        onDoCommands('lineheight', null,records[0].data.value);
+                    }
+                }                
+            },{
+                xtype: 'button',
+                action: 'boldButton',
+                tooltip: $CODE('siteViewToolbar.button-bold'),
+                cls:'icon-ce-bg-normal',
+                id:'x-pt-element-text-bold',
+                iconCls:'icon-ce-bold',
+                //name:'config_bold',
+                handler: function(btn, eOpts) {
+                    onDoCommands('bold',getMenuPositionDom(btn.btnIconEl.dom,''),'');
+                }
+            },{
+                xtype: 'button',
+                action: 'italicButton',
+                cls:'icon-ce-bg-normal',
+                tooltip: $CODE('siteViewToolbar.button-italic'),
+                iconCls:'icon-ce-italic',
+				name:'config_italic',
+                handler: function(btn, eOpts) {
+                    onDoCommands('italic',getMenuPositionDom(btn.btnIconEl.dom,''),'');
+                }
+            },{
+                xtype: 'button',
+                action: 'underlineButton',
+                tooltip: $CODE('siteViewToolbar.button-underline'),
+                cls:'icon-ce-bg-normal',
+                iconCls:'icon-ce-underline',
+                handler: function(btn, eOpts) {
+                    onDoCommands('underline',getMenuPositionDom(btn.btnIconEl.dom,''),'');
+                }
+            },{
+                xtype: 'button',
+                action: 'strikethroughButton',
+                tooltip: $CODE('siteViewToolbar.button-strikethrough'),
+                cls:'icon-ce-bg-normal',
+                iconCls:'icon-ce-strikethrough',
+                handler: function(btn, eOpts) {
+                    onDoCommands('strikethrough',getMenuPositionDom(btn.btnIconEl.dom,''),'');
+                }
+            },{
+                xtype: 'button',
+                action: 'fontcolor',
+                tooltip: $CODE('siteViewToolbar.button-fontColor'),
+                cls:'icon-ce-bg-normal',
+                id:'x-pt-element-text-fontcolor',
+                name:'config_fontcolor',
+                iconCls:'icon-ce-fontcolor',
+                handler: function(btn, eOpts) {
+                    onDoCommands('fontcolor' ,getMenuPositionDom(btn.btnIconEl.dom,'') ,'');
+                }
+            },{
+                xtype: 'button',
+                action: 'backgroundColorPicker',
+                tooltip: $CODE('siteViewToolbar.button-backgroundColor'),
+                cls:'icon-ce-bg-normal',
+                name:'config_backgroundColor',
+                iconCls:'icon-ce-fontbackgroundcolor',
+                handler: function(btn, eOpts) {
+                    onDoCommands('fontbackgroundcolor' ,getMenuPositionDom(btn.btnIconEl.dom,'') ,'');
+                }                
+            },{
+                xtype: 'button',
+                action: 'removeFormatButton',
+                tooltip: $CODE('siteViewToolbar.button-removeFormat'),
+                cls:'icon-ce-bg-normal',
+                iconCls:'icon-ce-cancelattribute',
+                handler: function(btn, eOpts) {
+                    onDoCommands('cancelattribute',getMenuPositionDom(btn.btnIconEl.dom,''),'');
+                }                
+            },{
+                xtype: 'button',
+                action: 'justifyLeftButton',
+                tooltip: $CODE('siteViewToolbar.button-justifyLeft'),
+                cls:'icon-ce-bg-normal',
+                toggleGroup: 'justify',
+                iconCls:'icon-ce-justifyleft',
+                handler: function(btn, eOpts) {
+                    onDoCommands('justifyleft',getMenuPositionDom(btn.btnIconEl.dom,''),'');
+                }
+            },{
+                xtype: 'button',
+                action: 'justifyCenterButton',
+                tooltip: $CODE('siteViewToolbar.button-justifyCenter'),
+                cls:'icon-ce-bg-normal',
+                toggleGroup: 'justify',
+                iconCls:'icon-ce-justifycenter',
+                handler: function(btn, eOpts) {
+                     onDoCommands('justifycenter',getMenuPositionDom(btn.btnIconEl.dom,''),'');
+                }
+            },{
+                xtype: 'button',
+                action: 'justifyRightButton',
+                tooltip: $CODE('siteViewToolbar.button-justifyRight'),
+                cls:'icon-ce-bg-normal',
+                toggleGroup: 'justify',
+                iconCls:'icon-ce-justifyright',
+                handler: function(btn, eOpts) {
+                    onDoCommands('justifyright',getMenuPositionDom(btn.btnIconEl.dom,''),'');
+                }
+            },{
+            //양쪽정렬
+                xtype: 'button',
+                action: 'justifyBlockButton',
+                tooltip: $CODE('siteViewToolbar.button-justifyBlock'),
+                cls:'icon-ce-bg-normal',
+                toggleGroup: 'justify',
+                iconCls:'icon-ce-justifyfull',
+                handler: function(btn, eOpts) {
+                    onDoCommands('justifyfull',getMenuPositionDom(btn.btnIconEl.dom,''),'');
+                }
+            },{ 
+            //들여쓰기
+                xtype: 'button',
+                action: 'indentButton',
+                tooltip: $CODE('siteViewToolbar.button-indent'),
+                cls:'icon-ce-bg-normal',
+                iconCls:'icon-ce-indent',
+                handler: function(btn, eOpts) {
+                   onDoCommands('indent',getMenuPositionDom(btn.btnIconEl.dom,''),'');
+                }
+            },{
+            //내어쓰기
+                xtype: 'button',
+                action: 'outdentButton',
+                tooltip: $CODE('siteViewToolbar.button-outdent'),
+                cls:'icon-ce-bg-normal',
+                iconCls:'icon-ce-outdent',
+                handler: function(btn, eOpts) {
+                    onDoCommands('outdent',getMenuPositionDom(btn.btnIconEl.dom,''),'');
+                }   
+            },{
+            //문단여백
+                xtype: 'button',
+                action: 'outdentButton',
+                tooltip: $CODE('siteViewToolbar.button-padding'),
+                cls:'icon-ce-bg-normal',
+                iconCls:'icon-ce-txtmargin',
+                handler: function(btn, eOpts) {
+                    onDoCommands('txtmargin',getMenuPositionDom(btn.btnIconEl.dom,''),'');
+                }                               
+            },{
+                xtype: 'button',
+                action: 'listNumbersButton',
+                tooltip: $CODE('siteViewToolbar.button-number'),
+                cls:'icon-ce-bg-normal',
+                toggleGroup: 'list',
+                iconCls:'icon-ce-numberset',
+                handler: function(btn, eOpts) {
+                    onDoCommands('numberset',getMenuPositionDom(btn.btnIconEl.dom,''),'');
+                }
+            },{
+                xtype: 'button',
+                action: 'marksetButton',
+                tooltip: $CODE('siteViewToolbar.button-bullet'),
+                cls:'icon-ce-bg-normal',
+                toggleGroup: 'list',
+                iconCls:'icon-ce-markset',
+                handler: function(btn, eOpts) {
+                    onDoCommands('markset',getMenuPositionDom(btn.btnIconEl.dom,''),'');
+                }
+            },{
+            //인용
+                xtype: 'button',
+                action: 'blockQuoteButton',
+                tooltip: $CODE('siteViewToolbar.button-blockQuote'),
+                cls:'icon-ce-bg-normal',
+                iconCls:'icon-ce-blockquote',
+                handler: function(btn, eOpts) {
+                    onDoCommands('blockquote',getMenuPositionDom(btn.btnIconEl.dom,''),'');
+                }
+            },{
+            //아랫첨자
+                xtype: 'button',
+                action: 'subScript',
+                tooltip: $CODE('siteViewToolbar.button-subScript'),
+                cls:'icon-ce-bg-normal',
+                iconCls:'icon-ce-subscript',
+                handler: function(btn, eOpts) {
+                    onDoCommands('subscript',getMenuPositionDom(btn.btnIconEl.dom,''),'');
+                }
+			},{
+            //위첨자
+                xtype: 'button',
+                action: 'superScript',
+                tooltip: $CODE('siteViewToolbar.button-superScript'),
+                cls:'icon-ce-bg-normal',
+                iconCls:'icon-ce-superscript',
+                handler: function(btn, eOpts) {
+                    onDoCommands('superscript',getMenuPositionDom(btn.btnIconEl.dom,''),'');
+                }
+            },{
+            //링크
+                xtype: 'button',
+                action: 'linkButton',
+                tooltip: $CODE('siteViewToolbar.button-link'),
+                cls:'icon-ce-bg-normal',
+                iconCls:'icon-ce-hyperlink',
+                handler: function(btn, eOpts) {
+                    onDoCommands('hyperlink',getMenuPositionDom(btn.btnIconEl.dom,''),'');
+                }
+            },{
+            //수평선
+                xtype: 'button',
+                action: 'hlineButton',
+                tooltip: $CODE('siteViewToolbar.button-hline'),
+                cls:'icon-ce-bg-normal',
+                iconCls:'icon-ce-hr',
+                handler: function(btn, eOpts) {
+                    onDoCommands('inserthorizontalrule',getMenuPositionDom(btn.btnIconEl.dom,''),'');
+                }
+            },{
+                xtype: 'button',
+                action: 'insertButton',
+                tooltip: $CODE('siteViewToolbar.button-insert'),
+                cls:'icon-ce-bg-normal',
+                iconCls:'icon-image-add',
+                menu: [{
+                    action: 'imageButton',
+                    text: $CODE('siteViewToolbar.button-image'),
+                    iconCls:'icon-ce-image',
+                    handler: function(btn, eOpts) {
+                        onDoCommands('image',getMenuPositionDom(btn.container.dom,'container'),'');
+                    }
+                },{
+                    action: 'resourceImageButton',
+                    text: $CODE('siteViewToolbar.button-resource-image')+' ',
+                    iconCls:'icon-ce-image',
+                    handler: function(btn, eOpts) {
+                    	var ele = $(btn.container.dom).get(0);
+                        //onDoCommands('image',ele,'');
+                        Pinetree.util.openResourceWindow('$_pt_divId', function(path,info){
+                        	var component = SiteEditor.getSiteviewController().getComponent('$_pt_divId');
+                        	component.editorInstance.InsertImage(path,path);
+                        },"IMAGE");
+                    }
+                },{
+                //배경그림
+                    action: 'bgimageButton',
+                    text: $CODE('siteViewToolbar.button-backgroundimage'),
+                    iconCls: 'icon-ce-backgroundimage',
+                    handler: function(btn, eOpts) {
+                        onDoCommands('backgroundimage',getMenuPositionDom(btn.container.dom,'container'),'');
+                    }                    
+                },{
+                //동영상
+                    action: 'flashButton',
+                    text: $CODE('siteViewToolbar.button-movie'),
+                    iconCls: 'icon-ce-movie',
+                    handler: function(btn, eOpts) {
+                        onDoCommands('flash',getMenuPositionDom(btn.container.dom,'container'),'');
+                    }
+                },{
+                //파일첨부
+                    action: 'insertfileButton',
+                    text: $CODE('siteViewToolbar.button-insertfile'),
+                    iconCls: 'icon-ce-insertfile',
+                    handler: function(btn, eOpts) {
+                        onDoCommands('insertfile',getMenuPositionDom(btn.container.dom,'container'),'');
+                    }
+                },{
+                //기호
+                    action: 'specialcharsButton',
+                    text: $CODE('siteViewToolbar.button-specialChar'),
+                    iconCls: 'icon-ce-specialchars',
+                    handler: function(btn, eOpts) {
+                        onDoCommands('specialchars',getMenuPositionDom(btn.container.dom,'container'),'');
+                    }
+                },{
+                //책갈피
+                    action: 'bookmarkButton',
+                    text: $CODE('siteViewToolbar.button-bookmark'),
+                    iconCls: 'icon-ce-bookmark',
+                    handler: function(btn, eOpts) {
+                        onDoCommands('bookmark',getMenuPositionDom(btn.container.dom,'container'),'');
+                    }
+                },{
+                //layout
+                    action: 'layoutButton',
+                    text: $CODE('siteViewToolbar.button-layout'),
+                    iconCls: 'icon-ce-layout',
+                    handler: function(btn, eOpts) {
+                        onDoCommands('layout',getMenuPositionDom(btn.container.dom,'container'),'');
+                    }
+                }]
+            },{
+            //표그리기
+                xtype: 'button',
+                action: 'tableinsertButton',
+                tooltip: $CODE('siteViewToolbar.button-tableinsert'),
+                cls:'icon-ce-bg-normal',
+                iconCls:'icon-ce-table',
+                handler: function(btn, eOpts) {
+                    onDoCommands('tableinsert',getMenuPositionDom(btn.btnIconEl.dom,''),'');
+                }
+            },{
+            //행추가
+                xtype: 'button',
+                action: 'tablerowinsertButton',
+                tooltip: $CODE('siteViewToolbar.button-tablerowinsert'),
+                cls:'icon-ce-bg-normal',
+                iconCls:'icon-ce-tablerowinsert',
+                name:'config_tablerowinsert',
+                //disabled:true,
+                handler: function(btn, eOpts) {
+                    onDoCommands('tablerowinsert',getMenuPositionDom(btn.btnIconEl.dom,''),'');
+                }    
+            },{
+            //행삭제
+                xtype: 'button',
+                action: 'tablerowdeleteButton',
+                tooltip: $CODE('siteViewToolbar.button-tablerowdelete'),
+                cls:'icon-ce-bg-normal',
+                iconCls:'icon-ce-tablerowdelete',
+                name:'config_tablerowdelete',
+                //disabled:true,
+                handler: function(btn, eOpts) {
+                    onDoCommands('tablerowdelete',getMenuPositionDom(btn.btnIconEl.dom,''),'');
+                }    
+            },{
+            //열추가
+                xtype: 'button',
+                action: 'tablecolumninsertButton',
+                tooltip: $CODE('siteViewToolbar.button-tablecolumninsert'),
+                cls:'icon-ce-bg-normal',
+                iconCls:'icon-ce-tablecolumninsert',
+                name:'config_tablecolumninsert',
+                //disabled:true,
+                handler: function(btn, eOpts) {
+                    onDoCommands('tablecolumninsert',getMenuPositionDom(btn.btnIconEl.dom,''),'');
+                }    
+            },{
+            //열삭제
+                xtype: 'button',
+                action: 'tablecolumndeleteButton',
+                tooltip: $CODE('siteViewToolbar.button-tablecolumndelete'),
+                cls:'icon-ce-bg-normal',
+                iconCls:'icon-ce-tablecolumndelete',
+                name:'config_tablecolumndelete',
+                //disabled:true,
+                handler: function(btn, eOpts) {
+                    onDoCommands('tablecolumndelete',getMenuPositionDom(btn.btnIconEl.dom,''),'');
+                }    
+            },{
+            //셀병합
+                xtype: 'button',
+                action: 'tablecellmergeButton',
+                tooltip: $CODE('siteViewToolbar.button-tablecellmerge'),
+                cls:'icon-ce-bg-normal',
+                iconCls:'icon-ce-tablecellmerge',
+                name:'config_tablecellmerge',
+                //disabled:true,
+                handler: function(btn, eOpts) {
+                    onDoCommands('tablecellmerge',getMenuPositionDom(btn.btnIconEl.dom,''),'');
+                }    
+            },{
+            //셀나누기
+                xtype: 'button',
+                action: 'tablecellsplitButton',
+                tooltip: $CODE('siteViewToolbar.button-tablecellsplit'),
+                cls:'icon-ce-bg-normal',
+                iconCls:'icon-ce-tablecellsplit',
+                name:'config_tablecellsplit',
+                //disabled:true,
+                handler: function(btn, eOpts) {
+                    onDoCommands('tablecellsplit',getMenuPositionDom(btn.btnIconEl.dom,''),'');
+                }    
+            },
+            {
+            	xtype:'label',
+            	text:'#_pt_message("component.widget.wcontent.styleguide")',
+            	margin: '10 10 10 10'
+            }
+    	]
+    });
+
+    var localeStore = Ext.create('SiteEditor.store.static.locale.Locale');
+    localeStore.on('load', function(st, records){
+        var localSet = [];
+        //for localset field
+        Ext.iterate(records, function(rc){
+            localSet.push({"localeCd": rc.data.localeCode, "localeText": rc.data.localeName,"replaceCd":"","use":true});
+        });
+
+        //Ext.getCmp('x-st-wcontent-wLocaleSet').setValue(JSON.stringify(localSet));
+    });
+    localeStore.load();
+
+	var contentInfoFieldset = Ext.create('Ext.form.FieldSet', {
+        id: 'x-st-wcontent-contentInfo',
+        title: '#_pt_message("component.widget.wcontent.contentInformation")',
+        layout: 'fit',
+        padding: 0,
+        margin: '15 0 0 0',
+        border: false,
+        collapsible: true,
+        //hidden: true,
+        items:[{
+            xtype: 'gridpanel',
+            hideHeaders: true,
+            columns: [{
+                dataIndex: 'text',
+                width: 100
+            },{
+                xtype: 'componentcolumn',
+                dataIndex: 'fieldType',
+                renderer: function(value, metadata, record){
+                    switch(value){
+                        case 'title':
+                            return {
+                                xtype: 'textfield',
+                                readOnly: record.data.readOnly,
+                                name: record.data.name_config,
+                                allowBlank: false,
+                                value: record.data.value,
+                                listeners: {
+                                    change: function (comp, nVal) {
+                                        comp.up('form').rebindFunction(comp, nVal);
+                                        if (nVal == '') {
+                                            Ext.Msg.alert('Warning', '#_pt_message("component.widget.wcontent.thisFieldIsRequire")', function () {
+                                                setTimeout(function () {
+                                                    comp.focus();
+                                                }, 10);
+                                            });
+                                        }
+                                    },
+                                    afterrender: function (me) {
+                                        var noOfComponent = 1;
+                                        var config = SiteEditor.getSiteviewController().getComponentConfig('${_pt_divId}');
+                                        if(config) {
+                                            noOfComponent = config.currentCount;
+                                        }
+
+                                        //var noOfComponent = SiteEditor.getSiteDesignController().getComponentElsByType('widget', 'wcontent').getCount();
+                                        me.getValue() == "" ? me.setValue("Content " + ((noOfComponent < 10)? "0" + noOfComponent: noOfComponent)) : false;
+                                    }
+                                }
+                            };
+                        case 'createBy':
+                        case 'createDate':
+                        case 'modifyBy':
+                        case 'modifyDate':
+                            return {
+                                xtype: 'textfield',
+                                readOnly: record.data.readOnly,
+                                name: record.data.name_config,
+                                value: record.data.value,
+                                listeners: {
+                                    change: function (comp, nVal) {
+                                        comp.up('form').rebindFunction(comp, nVal);
+                                    }
+                                }
+                            };
+                        case 'group':
+                            return {
+                                xtype: 'container',
+                                layout: {
+                                    type: 'hbox',
+                                    align: 'stretch'
+                                },
+                                items: [
+                                    {
+                                        xtype: 'textfield',
+                                        readOnly: record.data.readOnly,
+                                        name: record.data.name_config,
+                                        value: record.data.value,
+                                        flex: 5,
+                                        listeners: {
+                                            change: function (comp, nVal) {
+                                                comp.up('form').rebindFunction(comp, nVal);
+                                            }
+                                        }
+                                    },
+                                    {
+                                        xtype: 'button',
+                                        flex: 1,
+                                        minWidth: 22,
+                                        iconCls: 'icon-cog-edit',
+                                        handler: function (btn, e) {
+                                            var form = btn.up("form");
+
+                                            // Show select group dialog here.
+                                            var winGroup = Ext.create('Component.widget.wcontent.admin.SelectGroupWindow', {
+                                                configForm: form
+                                            });
+                                            winGroup.show();
+                                        }
+                                    }
+                                ]
+                            };
+                        case 'locale':
+                            return {
+                                xtype: 'combo',
+                                store: localeStore,
+                                displayField: 'localeName',
+                                valueField: 'localeCode',
+                                queryMode: 'local',
+                                readOnly: record.data.readOnly,
+                                name: record.data.name_config,
+                                //value: record.data.value,
+                                listeners: {
+                                    change: function (comp, nVal) {
+                                        comp.up('form').rebindFunction(comp, nVal);
+                                        //reload content here for each time reset locale. How could we keep the content from normal??
+                                        // TODO: FIXME: Should check if is change radio button, not change by selecting value then should not call it
+                                        if(!this.initialize) {
+                                            SiteEditor.getSiteviewController().reloadComponent('${_pt_divId}');
+                                        } else { // Set default value therefore no content from database, should not reload to keep the current content.
+                                            // FIXME: Still the same problem when click out and click in again.
+                                            this.initialize = false;
+                                        }
+                                    } ,
+                                    afterrender: function (me) {
+                                        if(!me.getValue()) { // Not set locale yet.
+                                            me.initialize = true;
+                                            if(localeStore && localeStore.getAt(0)) {
+                                            	me.setValue(localeStore.getAt(0).get("localeCode"));
+                                            }
+                                        }
+                                    }
+                                }
+                            };
+                    }
+
+                    return value;
+                },
+                flex: 1
+            }],
+            store: Ext.create('Ext.data.Store', {
+                fields: [{name: 'fieldType'}, {name: 'text'}, {name: 'name_config'}, {name: 'readOnly', type: 'boolean'}, {name: 'value'}],
+                data: []
+            }),
+            tbar:[
+                {
+                    xtype: 'button',
+                    text: '#_pt_message("component.widget.wcontent.linkAnotherContent")',
+                    action: 'link',
+                    handler: function(){
+                        var form = this.up('form');
+                        var wcontentGrpNo = form.down('hidden[name=config_wcontentGrpNo]');
+
+                        Ext.create("Component.widget.wcontent.admin.ContentPoolWindow", {
+                            componentId: '${_pt_divId}',
+                            groupId: wcontentGrpNo.getValue(),
+                            title: $CODE('wcontent.contentPoolTitle')
+                        }).show();
+                    }
+                }/*,
+                '->',
+                {
+                    xtype: 'button',
+                    action: 'disconnect',
+                    text: '#_pt_message("component.widget.wcontent.disconnect")',
+                    handler: function(bnt){
+                        Ext.create("Component.widget.wcontent.admin.ConfirmUnlinkWindow", {
+                            targetForm: bnt.up('form')
+                        }).show();
+                    }
+                }*/
+
+            ]
+        }]
+    });
+
+    var noteFieldset = Ext.create('Ext.form.FieldSet', {
+        title: '#_pt_message("component.widget.wcontent.note")',
+        id: 'pt-componentconfig-wcontent-fieldset-noteFieldSet',
+        layout: 'fit',
+        padding: 0,
+        border: false,
+        //hidden: true,
+        collapsible: true,
+        items: [
+            {
+                xtype: 'textareafield',
+                name: 'config_wcontentNote',
+                padding: '5 0 5 0'
+            }
+        ]
+    });
+
+
+	var setComponentConfig = function(id,newConfig) {
+		var config = SiteEditor.getSiteviewController().getComponentConfig(id);
+		if(config) {
+			if(newConfig) {
+				Ext.iterate(newConfig,function(key,val) {
+					config[key] = val;
+				});
+			}
+		} else {
+			config = newConfig;
+		}
+		SiteEditor.getSiteviewController().saveComponentConfig(id, config, true);
+		
+	};
+
+	var getContentHTML = function(id) {
+		var $ = SiteEditor.getSiteviewController().getSiteview().$;
+		var text = $('#'+id +' .pt-editable-content').html();
+		
+		if(text) {
+			text = text.trim();
+		} else {
+			text = '';
+		}
+		
+		return text;
+		
+	};
+
+    var setContentHTML = function(id, html) {
+        var $ = SiteEditor.getSiteviewController().getSiteview().$;
+        $('#'+id +' .pt-editable-content').html(html);
+    };
+
+    var textTypeFieldset = Ext.create('Ext.form.FieldSet', {
+        title: '#_pt_message("component.widget.wcontent.contentType")', // Content properties
+        id: 'pt-componentconfig-wcontent-fieldset-textTypeFieldset',
+        layout: 'fit',
+        padding: 0,
+        border: false,
+        collapsible: true,
+        items: [
+            {
+                xtype      : 'fieldcontainer',
+                defaultType: 'radiofield',
+                defaults: {
+                    width: 150
+                },
+                layout: {
+                    type: 'hbox',
+                    align: 'stretch',
+                    pack: 'center'
+                },
+                items: [
+                    {
+                        boxLabel  : '#_pt_message("component.widget.wcontent.contentType.text")',
+                        name      : 'wcontentProperties',
+                        id: 'normalText',
+                        checked: true,
+                        listeners: {
+                            change: function(field, newValue, oldValue) {
+                                // If this is selected and not configInit
+                                if(!newValue) { // Deselect the value mean select another value, therefore don't care about it.
+                                    return;
+                                }
+
+                                // Select me
+                                // If configInit or revertback then simply set value.
+                                if(this.configInit || this.revertBack) {
+                                    contentInfoFieldset.hide();
+                                    noteFieldset.hide();
+
+                                    // Setting value incase configInit, not in revertback.
+                                    if(this.configInit) {
+                                        this.configInit = false;
+                                    }
+
+                                    if(this.revertBack){
+                                        this.revertBack = false;
+                                    }
+
+                                    return;
+                                }
+
+                                // Really new value, need to confirm before setting, if no then reverback.
+                                Ext.Msg.show({
+                                    title:$CODE('common.confirm')
+                                    ,msg: "#_pt_message('component.widget.wcontent.cms2normal')"
+                                    ,icon:Ext.Msg.QUESTION
+                                    ,buttons:Ext.Msg.YESNO
+                                    ,scope:this
+                                    ,fn:function(response) {
+                                        if('yes' === response) {
+                                            contentInfoFieldset.hide();
+                                            noteFieldset.hide();
+                                            textTypeFieldset.down('hidden[name=config_wcontentProperties]').setValue('normal');
+
+                                            var editingCompId = SiteEditor.getSiteDesignController().componentContentEditing;
+                                            var delay = 0;
+                                            if(editingCompId){
+                                                SiteEditor.fireEvent('hideSpotlightComponent');
+                                            }
+
+                                            // Unlink cms content
+                                            Ext.Ajax.request({
+                                                url: '/app/sitemgr/content/unlinkContent2.html',
+                                                params: {
+                                                    wcontentId: '${_pt_divId}'
+                                                },
+                                                success: function(){
+                                                    // Set and save component config file, not call saveComponentConfig in Control yet.
+                                                    // Reset/disconnect when convert from cms to normal.
+                                                    // Set control only, not set config
+                                                    var form = textTypeFieldset.up('form');
+                                                    // suspend event 'change' to avoid component reload
+                                                    var configComponents = form.query('component');
+                                                    for (var i = 0; i < configComponents.length; i++) {
+                                                        configComponents[i].suspendEvent('change');
+                                                    }
+                                                    form.down('textfield[name=config_wcontentGrpName]').setValue("");
+                                                    form.down('textfield[name=config_createdBy]').setValue("");
+                                                    form.down('textfield[name=config_createdDate]').setValue("");
+                                                    form.down('textfield[name=config_modifiedBy]').setValue("");
+                                                    form.down('textfield[name=config_modifiedDate]').setValue("");
+                                                    form.down('hidden[name=config_wcontentGrpNo]').setValue("");
+                                                    form.down('hidden[name=config_wcontentLink]').setValue("");
+                                                    form.down('hidden[name=config_wdisconnect]').setValue(null);
+
+                                                    //var noOfComponent = SiteEditor.getSiteDesignController().getComponentElsByType('widget', 'wcontent').getCount();
+                                                    var noOfComponent = 1;
+                                                    var config = SiteEditor.getSiteviewController().getComponentConfig('${_pt_divId}');
+                                                    if(config) {
+                                                        noOfComponent = config.currentCount;
+                                                    }
+
+                                                    form.down('textfield[name=config_wcontentTitle]').setValue("Content " + ((noOfComponent < 10)? "0" + noOfComponent: noOfComponent));
+                                                    //form.down('combo[name=config_wcontentLocale]').setValue(null);
+                                                    form.down('textarea[name=config_wcontentNote]').setValue("");
+                                                    // resume event 'change'
+                                                    for (var i = 0; i < configComponents.length; i++) {
+                                                        configComponents[i].resumeEvent('change');
+                                                    }
+
+                                                    setComponentConfig('${_pt_divId}',{
+                                                        saveToFile:'Y',
+                                                        wcontentNormalText:getContentHTML('${_pt_divId}')
+                                                    });
+
+                                                    SiteEditor.getSiteviewController().reloadComponent('${_pt_divId}');
+
+                                                    setComponentConfig('${_pt_divId}',{
+                                                        saveToFile:'',
+                                                        wcontentNormalText:''
+                                                    });
+                                                },
+                                                failure: function(form, action) {
+                                                    Ext.MessageBox.alert($CODE('common.namoWebtree'),$CODE('msg.unspecifiedError'));
+                                                }
+                                            });
+
+                                        } else { // Revertback mean set other is true, which will call me to false.
+                                            textTypeFieldset.down('radiofield[id=cmsText]').revertBack = true;
+                                            textTypeFieldset.down('radiofield[id=cmsText]').setValue(true);
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }, {
+                        boxLabel  : "#_pt_message('component.widget.wcontent.contentType.cms')",
+                        name      : 'wcontentProperties',
+                        id: 'cmsText',
+                        listeners: {
+                            change: function(field, newValue, oldValue) {
+                                if(!newValue) { // Deselect the value mean select another value, therefore don't care about it.
+                                    return;
+                                }
+
+                                // Select me
+                                // If configInit or revertback then simply set value.
+                                if(this.configInit || this.revertBack) {
+                                    contentInfoFieldset.show();
+                                    noteFieldset.show();
+
+                                    // Setting value incase configInit, not in revertback.
+                                    if(this.configInit) {
+                                        this.configInit = false;
+                                    }
+
+                                    if(this.revertBack){
+                                        this.revertBack = false;
+                                    }
+
+                                    return;
+                                }
+
+
+                                // Really new value, need to confirm before setting, if no then reverback.
+                                Ext.Msg.show({
+                                    title:$CODE('common.confirm')
+                                    ,msg: "#_pt_message('component.widget.wcontent.normal2cms')"
+                                    ,icon:Ext.Msg.QUESTION
+                                    ,buttons:Ext.Msg.YESNO
+                                    ,scope:this
+                                    ,fn:function(response) {
+                                        if('yes' === response) {
+                                            contentInfoFieldset.show();
+                                            noteFieldset.show();
+                                            textTypeFieldset.down('hidden[name=config_wcontentProperties]').setValue('cms');
+
+                                            var editingCompId = SiteEditor.getSiteDesignController().componentContentEditing;
+                                            var delay = 0;
+                                            if(editingCompId){
+                                                SiteEditor.fireEvent('hideSpotlightComponent');
+                                            }
+                                            // Reload component to get the new content from server.
+                                            //SiteEditor.getSiteviewController().reloadComponent('${_pt_divId}');
+
+                                            // This one just reload data from config or configInit if not. Not reset content like change locale.
+                                            var form = this.up('form');
+                                            onLoadFormAction(form);
+
+                                            // Execute onChangeContentType
+                                            onChangeContentType('cms');
+                                        } else {// Revertback mean set other is true, which will call me to false.
+                                            textTypeFieldset.down('radiofield[id=normalText]').revertBack = true;
+                                            textTypeFieldset.down('radiofield[id=normalText]').setValue(true);
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                xtype: 'hidden',
+                name: 'config_wcontentProperties',
+                value: '' // Autoload from config.
+            }
+        ]
+    });
+
+    var htmlModeFieldset = Ext.create('Ext.form.FieldSet', {
+        title: "#_pt_message('component.widget.wcontent.editorType')",
+        layout: 'fit',
+        padding: 0,
+        border: false,
+        id:'pt-componentconfig-wcontent-fieldset-htmlModeFieldset',
+        collapsible: true,
+        items: [
+            {
+                xtype      : 'fieldcontainer',
+                defaultType: 'radiofield',
+                defaults: {
+                    width: 150
+                },
+                layout: {
+                    type: 'hbox',
+                    align: 'stretch',
+                    pack: 'center'
+                },
+                items: [
+                    {
+                        boxLabel  : "#_pt_message('component.widget.wcontent.editorType.text')",
+                        name      : 'htmlModeProperty',
+                        id: 'textMode',
+                        checked: true,
+                        listeners: {
+                            change: function(field, newValue, oldValue,e) {
+                                // If this is selected and not configInit
+	                              if(!newValue) { // Deselect the value mean select another value, therefore don't care about it.
+                                  	return;
+								  }else{
+									onChangeEditorMode(0,e);
+									enableTextConfigButtons_2();
+								  }
+                            }
+                        }
+                    }, {
+                        boxLabel  : "#_pt_message('component.widget.wcontent.editorType.html')",
+                        name      : 'htmlModeProperty',
+                        id: 'htmlMode',
+                        listeners: {
+                            change: function(field, newValue, oldValue,e) {
+                                if(!newValue) { // Deselect the value mean select another value, therefore don't care about it.
+                                    return;
+                                }else{
+                                	onChangeEditorMode(1,e);
+                                	disableTextConfigButtons_2();
+                                }
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                xtype: 'hidden',
+                name: 'config_htmlModel',
+                value: '' // Autoload from config.
+            }
+        ]
+    });
+
+    var accessibilityFieldset = Ext.create('Ext.form.FieldSet', {
+        hidden: !SiteEditor.editor.uesAccessibility(),
+        title: '웹 접근성 검사',
+        padding: 0,
+        border: false,
+        collapsible: true,
+        items: [
+            {
+                xtype: 'button',
+                text: 'Check Accessibility' ,
+                padding: '5 0 5 0',
+                handler: function(){
+                    SiteEditor.editor.contentWidgetCheckAccessibility('$_pt_divId');
+                }
+            }
+        ]
+    });
+
+	/*
+	 *	configFormElements : to be "items" field in common widget config
+	 *  
+	 */ 
+	
+	var configFormElements = [
+		htmlModeFieldset,
+		{
+			xtype:'button',
+			text:'Save Current status and Apply',
+			id:'pt-btn-widget-wcontent-saveandapply',
+			disabled:true,
+			handler:function(){
+				SiteEditor.fireEvent('hideSpotlightComponent');
+			}
+		},
+        editingToolFieldset,
+        textTypeFieldset,
+        accessibilityFieldset,
+        contentInfoFieldset,
+        noteFieldset,
+        {
+            xtype: 'hidden',
+            name: 'config_wcontentId'
+        },
+        {
+            xtype: 'hidden',
+            name: 'config_wcontentMnuNo'
+        },
+        {
+            xtype: 'hidden',
+            name: 'config_wcontentLink'
+        },
+        {
+            xtype: 'hidden',
+            name: 'config_wcontentGrpNo'
+        },
+        /*{
+            xtype: 'hidden',
+            id: 'x-st-wcontent-wLocaleSet',
+            name: 'config_wLocaleSet'
+        },*/
+        {
+            xtype: 'hidden',
+            name: 'config_wdisconnect'
+        }
+		
+    ];
+
+
+	onLoadFormAction = function(form,component) {
+        console.log("ON LOAD FORM ACTION: .........................", arguments);
+
+        var wcontentId = form.down('hidden[name=config_wcontentId]');
+        wcontentId.setValue('$_pt_divId');
+
+        var wcontentMnuNo = form.down('hidden[name=config_wcontentMnuNo]');
+        wcontentMnuNo.setValue(ProjectEditor.getSiteDesignController().getMenuNo());
+        //load local and default config
+
+        var config = SiteEditor.getSiteviewController().getComponentConfig(getConfigBaseComponentId());
+        var wcontentProperties = config.wcontentProperties;
+
+        var normalContentProperties = form.down('radiofield[id=normalText]');
+        var cmsContentProperties = form.down('radiofield[id=cmsText]');
+        
+        if(!!wcontentProperties && "normal" === wcontentProperties) {
+            contentInfoFieldset.hide();
+            noteFieldset.hide();
+            normalContentProperties.configInit = true;
+
+            // FIXME: Incase we click out and click it again, then it will show and call on load form, which normal already check.
+            // Therefore, does not fire any change even which have more process like set false to this configInit.
+            // So, it could not remove configInit which cause configPanel
+            // run not correct the next time.
+            normalContentProperties.setValue(true);
+            if(normalContentProperties.configInit) {
+                normalContentProperties.configInit = false;
+            }
+        } else {
+//            localeStore.load();
+            form.down('gridpanel').store.loadData([
+                {fieldType: 'title', text: '#_pt_message("component.widget.wcontent.title")', name_config:'config_wcontentTitle', readOnly: false, value: config.wcontentTitle},
+                {fieldType: 'group', text: '#_pt_message("component.widget.wcontent.group")', name_config:'config_wcontentGrpName', readOnly: true, value: config.wcontentGrpName},
+                {fieldType: 'createBy', text: '#_pt_message("component.widget.wcontent.createdBy")', name_config:'config_createdBy', readOnly: true, value: config.createdBy},
+                {fieldType: 'createDate', text: '#_pt_message("component.widget.wcontent.createdDate")', name_config:'config_createdDate', readOnly: true, value: config.createdDate},
+                {fieldType: 'modifyBy', text: '#_pt_message("component.widget.wcontent.modifyBy")', name_config:'config_modifiedBy', readOnly: true, value: config.modifiedBy},
+                {fieldType: 'modifyDate', text: '#_pt_message("component.widget.wcontent.modifyDate")', name_config:'config_modifiedDate', readOnly: true, value: config.modifiedDate},
+                {fieldType: 'locale', text: '#_pt_message("component.widget.wcontent.locale")', name_config:'wcontentLocale', readOnly: false, value: config.wcontentLocale}
+            ]);
+
+            var isLink = false; // Default value
+            var wcontentLink = form.down('hidden[name=config_wcontentLink]');
+            var wcontentTitle = form.down('textfield[name=config_wcontentTitle]');
+            if(wcontentLink.getValue() != null && Ext.isNumeric(wcontentLink.getValue())) {
+                isLink = true;
+            }
+            function setContentValue(data){
+                console.log("load config", data);
+                if(data == null) {
+                    //not have instance
+                    form.down('button[action=link]').disable();
+                    form.down('textfield[name=config_createdBy]').setValue(__$_pt_currentUserId);
+                    form.down('textfield[name=config_createdDate]').setValue(Ext.Date.format(new Date(), 'Y.m.d'));
+                } else {
+                    form.down('textfield[name=config_wcontentTitle]').setValue(data.contentsTitle);
+                    form.down('textfield[name=config_createdBy]').setValue(data.regUserName);
+                    form.down('textfield[name=config_createdDate]').setValue(Pinetree.util.formatDateFromLong(data.regDate));
+                    form.down('textfield[name=config_modifiedBy]').setValue(data.modUserName);
+                    form.down('textfield[name=config_modifiedDate]').setValue(Pinetree.util.formatDateFromLong(data.modDate));
+                }
+            }
+
+            console.log("LIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIINK: ", isLink);
+            if(isLink) {
+                wcontentTitle.setReadOnly(true);
+                form.down('textfield[name=config_wcontentGrpName]').setReadOnly(true);
+                form.down('textfield[name=config_createdBy]').setReadOnly(true);
+                form.down('textfield[name=config_createdDate]').setReadOnly(true);
+                form.down('textfield[name=config_modifiedBy]').setReadOnly(true);
+                form.down('textfield[name=config_modifiedDate]').setReadOnly(true);
+                form.down('button[iconCls=icon-cog-edit]').disable();
+
+                //load from link content
+                //load config by component id;
+                Ext.Ajax.request({
+                    url:'/admin/widget/wcontent/getConfig.html',
+                    params: {
+                        type: 'linkId',
+                        compId: wcontentLink.getValue()
+                    },
+                    success:function(response){
+                        var resp = Ext.decode(response.responseText);
+                        setContentValue(resp);
+                    }
+                });
+            } else {
+                //form.down('button[action=disconnect]').disable();
+                //form.down('button[action=disconnect]').hide();
+
+                //load config by component id;
+                Ext.Ajax.request({
+                    url:'/admin/widget/wcontent/getConfig.html',
+                    params: {
+                        type: 'compId',
+                        compId: '$_pt_divId'
+                    },
+                    success:function(response){
+                        var resp = Ext.decode(response.responseText);
+                        setContentValue(resp);
+                    }
+                });
+            }
+
+
+            // Load default group.
+            // Set hidden value to default group value and text box to group name.
+            var wcontentGrpNo = form.down('hidden[name=config_wcontentGrpNo]');
+            if(!wcontentGrpNo.getValue()) {
+                Ext.Ajax.request({
+                    url:'/admin/widget/wcontent/defaultGroup.html',
+                    success:function(response){
+                        console.log(response);
+                        var resp = Ext.decode(response.responseText);
+                        var groupNo = resp.data.groupNo;
+                        wcontentGrpNo.setValue(groupNo);
+
+                        var groupName = resp.data.groupName;
+                        var wcontentGrpName = form.down('textfield[name=config_wcontentGrpName]');
+                        if(!wcontentGrpName.getValue()) {
+                            wcontentGrpName.setValue(groupName);
+                        }
+                    }
+                });
+            }
+            //always reset this value
+            //form.down('hidden[name=config_wdisconnect]').setValue(null);
+
+            // show hide content information value.
+            // var wcontentProperties = form.down('hidden[name=config_wcontentProperties]').getValue();
+            cmsContentProperties.configInit = true;
+            cmsContentProperties.setValue(true);
+
+            // FIXME: Incase we click out and click it again, then it will show and call on load form, which normal already check.
+            // Therefore, does not fire any change even which have more process like set false to this configInit.
+            // So, it could not remove configInit which cause configPanel
+            // run not correct the next time.
+            if(cmsContentProperties.configInit) {
+                cmsContentProperties.configInit = false;
+            }
+        }
+        disableTextConfigButtons();
+	}
+
+	onSubmitFormAction = function(form,component) {
+   	}
+
+   	onDoCommands = function(elId,ele,arg){
+   	
+		var comp = ProjectEditor.getSiteDesignController().getComponent(divId);
+	   	comp.fireEvent("doCommands",elId,ele,arg);
+        //comp.syncContentBox('.pt-editable-content');
+        $('.pt-floating-dummy').remove();
+   	}
+   	
+   	onChangeEditorMode = function(activeNo,event){
+   		var comp = ProjectEditor.getSiteDesignController().getComponent(divId);
+   		comp.fireEvent("onHtmlEditBtn",event, activeNo);
+   	}
+   	
+   	enableTextConfigButtons = function(){
+   		Ext.getCmp('pt-componentconfig-wcontent-fieldset-textconfig').setDisabled(false);
+   		Ext.getCmp('pt-componentconfig-wcontent-fieldset-htmlModeFieldset').setDisabled(false);
+
+   		Ext.getCmp('x-st-wcontent-contentInfo').setDisabled(true);
+   		Ext.getCmp('pt-componentconfig-wcontent-fieldset-noteFieldSet').setDisabled(true);
+   		Ext.getCmp('pt-componentconfig-wcontent-fieldset-textTypeFieldset').setDisabled(true);
+   	}
+   	
+   	disableTextConfigButtons = function(){
+   		Ext.getCmp('pt-componentconfig-wcontent-fieldset-textconfig').setDisabled(true);
+   		Ext.getCmp('pt-componentconfig-wcontent-fieldset-htmlModeFieldset').setDisabled(true);
+
+        Ext.getCmp('x-st-wcontent-contentInfo').setDisabled(false);
+        Ext.getCmp('pt-componentconfig-wcontent-fieldset-noteFieldSet').setDisabled(false);
+        Ext.getCmp('pt-componentconfig-wcontent-fieldset-textTypeFieldset').setDisabled(false);
+   	}
+   	
+   	enableTextConfigButtons_2 = function(){
+   		Ext.getCmp('pt-componentconfig-wcontent-fieldset-textconfig').setDisabled(false);
+   	}
+   	disableTextConfigButtons_2 = function(){
+   		Ext.getCmp('pt-componentconfig-wcontent-fieldset-textconfig').setDisabled(true);
+   	}
+   	
+
+    var onChangeContentType = function(newType) {
+        console.log('*****change Content mode', field);
+        // Making Ajax request
+        Ext.Ajax.request({
+            url: '/admin/widget/wcontent/changeContentType.html',
+            params: {
+                componentId: _$_pt_currentWidgetDivId,
+                contentType: newType
+            },
+            success: function(response){
+
+            }
+        });
+    };
+
+   	var saveContentsHistory = function(){
+   		//console.error('TRY TO SAVE CONTENT HISTORY!!!!!!!!!!!!')
+		var siteviewController = SiteEditor.getSiteviewController();
+		var siteDesignController = SiteEditor.getSiteDesignController();
+		
+		var $ = siteviewController.getSiteview().$;
+	   	var component = $('#'+'$_pt_divId'), id = component.attr('id') ;
+	    var componentContent = component.find('.pt-editable-content').xhtml();
+	
+	    var contentsHistoryNo = null;
+	    var config = siteviewController.getComponentConfig(id);
+	    if (config && config.contentsHistoryNo) {
+	        contentsHistoryNo = config.contentsHistoryNo;
+	    }
+	    if(!config.wcontentId){
+	        config.wcontentId = id;
+	    }
+	
+	    // Skip save history for normal content. Only cms need to save history.
+	    if("cms"=== config.wcontentProperties) {
+	        var params = {
+                contentsHistoryNo:contentsHistoryNo,
+                sitePageNo:siteDesignController.getSitePageNo(),
+                pageMstNo:siteDesignController.getPageMstNo(),
+                componentId:id,
+                componentType:'widget',
+                componentName:'wcontent',
+                componentConfig:Ext.encode(config),
+                componentContents:componentContent
+            };
+             
+	        console.log("Save component content...............", componentContent, " for component:...", id);
+	        console.info(params);
+	        
+	        Ext.Ajax.request({
+	            url:'/app/contentsManager/saveContentsHistory.html',
+	            params:params,
+	            success:function(response){
+	            	console.info('done');
+	            	//SiteEditor.getSiteviewController().getComponent(id).fireEvent('endEditingComponent');
+	            }
+	        });
+	        
+	    }
+   	
+   	};
+   	
+##parse("/component/widget/wcontent/admin/ConfirmUnlinkWindow.js")
+##parse("/component/widget/wcontent/admin/ContentListPanel.js")
+##parse("/component/widget/wcontent/admin/ContentPoolWindow.js")
+</script>

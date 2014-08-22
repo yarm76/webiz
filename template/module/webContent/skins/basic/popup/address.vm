@@ -1,0 +1,40 @@
+#set($field = $request.getParameter("field"))
+
+<link rel="stylesheet" href="/component/module/contactus/skins/basic/css/style.css">
+<html>
+	<head>
+		<script type="text/javascript">
+			function setAddr(me, field){
+				var val = me.value;
+				window.opener.addAddress(val, field);
+	            window.close();	
+			}
+    	</script>
+	</head>
+	<body>
+		<div class="m_contactus_wrap">
+			<h3 class="m_contactus_post_title">우편번호 검색</h3>
+			<div class="m_contactus_post_con">
+				<form id="address" method="post" action="/user/view/contactus/searchAddress.json">
+					<input type="hidden" name="field" value="$!{field}" />
+					<p>찾고자 하는 주소의 동 이름(읍, 면, 리 등)을 입력해 주세요.</p>
+					<div class="m_contactus_post_graybox1">
+						<label for="m_postName">동(읍/면) 이름</label>&nbsp;
+						<input type="text" name="search" class="input_txt1">&nbsp;
+						<a href="#" onclick="submit();" class="m_contactus_btn1">
+							검색
+						</a></p>
+					</div>
+					<h4>검색결과</h4>
+					<span class="span_txt">찾으시는 주소를 선택하시면 자동으로 입력됩니다.</span>
+					<select id="address_list" class="post_address_list" size="10" ondblclick="javascript:setAddr(this, '$!{field}');">
+						#foreach($addr in $list)
+			            	<option value="$addr.fieldValue"> $addr.fieldDisplay </option>
+			            #end
+					</select>
+					<p class="txt_ct"><a href="javascript:window.close()" class="m_contactus_btn1">확인</a></p>
+				</form>
+			</div>
+		</div>
+	</body>
+</html>

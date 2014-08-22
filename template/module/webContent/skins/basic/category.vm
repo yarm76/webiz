@@ -1,0 +1,58 @@
+#set($categoryList = $component.result.categoryList)
+#set($firstFormNo = $component.result.firstFormNo)
+#set($firstCategoryNo = $component.result.firstCategoryNo)
+#set($firstAdminEmail = $component.result.firstAdminEmail)
+#set($firstCategoryTitle = $component.result.firstCategoryTitle)
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		getForm($firstFormNo, $firstCategoryNo, '$!{firstAdminEmail}', '$!{firstCategoryTitle}');
+		if (__$_pt_currentSiteId=='lgericsson' || __$_pt_currentSiteId=='ericssonlg_ko'){
+			$('.m_contactus_tab_on').attr('class', 'm_contactus_tab_on_lgericsson');
+		} else {
+			$('.m_contactus_tab_on').attr('class', 'm_contactus_tab_on');
+		}
+	});
+</script>
+
+<div class="m_contactus_wrap">
+	<ul class="m_contactus_tab">
+	
+	#set($i=0)
+	#if($!categoryList.size()>1)
+		#foreach($category in $!categoryList)
+			#if($foreach.index==0)
+				<li class="m_contactus_tab_on" onclick="javascript:tabColarChang($(this));getForm($category.formNo, $category.categoryNo, '$!{category.adminEmail}', '$!{category.categoryTitle}');">				
+			#else
+				<li class=""  onclick="javascript:tabColarChang($(this));getForm($category.formNo, $category.categoryNo, '$!{category.adminEmail}', '$!{category.categoryTitle}');">
+			#end
+
+    			<a href="#" onclick="javascript:getForm($category.formNo, $category.categoryNo, '$!{category.adminEmail}', '$!{category.categoryTitle}')">
+					$category.categoryTitle
+				</a>
+			</li>
+	   	#end
+	#end
+
+    </ul>
+    <div class="m_contactus_content">
+    	<p class="m_contactus_tip"><span class="m_contactus_esen">*</span>
+    		#if(${_pt_siteId}=='fasoo')
+    			#_pt_message('component.module.contactus.required.fields')
+    		#else
+    			Required
+    		#end
+    	</p>
+    	
+    	<span id="contactusContent" method="">
+            
+        </span>
+    </div>
+    <p class="txt_ct"><a href="#" id="sendButton" class="m_contactus_btn1 m_contactus_submit">
+    	#if(${_pt_siteId}=='fasoo')
+			#_pt_message('component.module.contactus.send')
+		#else
+			Send
+		#end
+    </a></p>
+</div>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component>
+	<component-info>
+		<type>widget</type>
+		<id>wcontent</id>
+		<name></name>
+		<group>Common</group>
+		<groupOrder>101</groupOrder>
+		<baseComponentYn>Y</baseComponentYn>
+		<useYn>Y</useYn>
+	</component-info>
+
+    <control-list>
+        <control>contentWidgetControl</control>
+    </control-list>
+
+	<event-list>
+		<event>onload</event>
+		<event>onclick</event>
+		<event>onchange</event>
+		<event>onmouseover</event>
+		<event>onmouseout</event>
+		<event>onfocus</event>
+		<event>onsubmit</event>
+	</event-list>
+
+	<supportDevice>
+		<device>pc</device>
+		<device>mobile</device>
+		<device>tablet</device>
+	</supportDevice>
+
+	<default-data>
+		<![CDATA[
+			{
+				"wcontentNormalText": "<p>Lorem Ipsum</p>"
+			}
+		]]>
+	</default-data>
+
+	<component-style>
+		<default-width>200px</default-width>
+		<default-height>100px</default-height>
+		<min-width></min-width>
+		<min-height>32px</min-height>
+	</component-style>
+
+</component>

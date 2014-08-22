@@ -1,0 +1,19 @@
+<!DOCTYPE component-skin SYSTEM "http://dtd.pinetree.namo.com/common/dtd/component-skin.dtd">
+<component-skin>
+    <component-type>widget</component-type>
+    <component-name>wcontent</component-name>
+    <skin-name>basic</skin-name>
+    <display-name>basic</display-name>
+    <skin-type>base</skin-type>
+    <thumbnail>/component/widget/wcontent/info/thumb.gif</thumbnail>
+    <default-skin>Y</default-skin>
+    <use-yn>Y</use-yn>
+    <component-view>
+    </component-view>
+
+    <resources>
+        <!--<resource type="javascript" url="/common/js/ckeditor/ckeditor.js" position="head" condition="$_pt_VIEW_MODE == 'design'" />-->
+        <!--<resource type="javascript" url="/common/js/ckeditor/ckeditor-util.js" position="body" condition="$_pt_VIEW_MODE == 'design'" />-->
+        <resource type="javascript" url="/component/widget/wcontent/skins/basic/js/WContentUtil.js" position="body" condition="$_pt_VIEW_MODE == 'design'" />
+    </resources>
+</component-skin>

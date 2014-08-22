@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component>
+    <component-info>
+        <type>module</type>
+        <id>contactus</id>
+        <name>contactus</name>
+        <group>Module</group>
+        <groupOrder>215</groupOrder>
+        <handlerBeanName></handlerBeanName>
+        <baseComponentYn>Y</baseComponentYn>
+        <useYn>Y</useYn>
+        <useManagerPage>Y</useManagerPage>
+    </component-info>
+
+    <control-list>
+        <control>contactusControl</control>
+    </control-list>
+    <css-path>
+
+    </css-path>
+    <supportDevice>
+        <device>pc</device>
+        <device>tablet</device>
+    </supportDevice>
+
+    <scene-list>
+        <scene>category</scene>
+    </scene-list>
+
+</component>

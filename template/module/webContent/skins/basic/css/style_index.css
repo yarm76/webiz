@@ -1,0 +1,68 @@
+body {
+	margin:0;
+	font-family:돋움,NanumGothic,arial,sans-serif;
+	color:#404040;
+	font-size:12px;
+	}
+
+a:link, a:visited, a:active {color:#444; text-decoration:none;}
+a:hover {text-decoration:underline;}
+
+img {border:0;}
+ul,li {list-style:none; margin:0; padding:0;}
+p, dl, h1, h2, h3, h4, h5, h6 {margin:0; padding:0;}
+
+form fieldset {border:0; margin:0; padding:0;}
+form fieldset legend {display:none;}
+
+table {border-collapse: collapse; margin:0; padding:0;}
+table caption {display:none;}
+
+#contents_wrap {
+	width:730px;
+	height:100%;
+	margin:0;
+	overflow:hidden;
+	}
+#index {
+	border:1px solid #c6d2e3;
+	margin-top:20px;
+	}
+
+.com_list {
+	position:relative;
+	width: 100%;
+	height: auto;
+	overflow:hidden;
+	}
+
+.com_list h4 {
+	background:url(images/db_index_tit_bg.gif) repeat-x;
+	height:27px;
+	padding-left:20px;
+	padding-top:10px;
+	}
+.com_list ul {
+	width:20%;
+	padding:18px;
+	float:left;
+	}
+.com_list ul li {
+	background:url(images/blt02.gif) no-repeat left 5px;
+	padding-left:8px;
+	margin-bottom:12px;
+	}
+.comp_num {
+	font-weight:bold;
+	color:#fd8933;
+	}
+
+.roll_btn {
+	margin:18px 0;
+	text-align:center;
+	position: relative;
+	}
+.roll_btn ul li {
+	display:inline;
+	margin-left:10px;
+	}

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-skin SYSTEM "http://dtd.pinetree.namo.com/common/dtd/component-skin.dtd">
+<component-skin>
+
+    <component-type>module</component-type>
+    <component-name>contactus</component-name>
+    <skin-name>basic</skin-name>
+    <display-name>basic</display-name>
+    <skin-type>base</skin-type>
+    <thumbnail>/component/module/contactus/info/thumb.gif</thumbnail>
+    <default-skin>Y</default-skin>
+    <use-yn>Y</use-yn>
+    <component-view>
+        <view name="common" path="common.vm" />
+        <view name="popup/address.vm" path="address.vm" />
+    </component-view>
+
+    <resources>
+        <resource type="javascript" url="/common/js/jquery/plugin/jquery.printElement.min.js" position="body" scene="category"/>
+        <resource type="javascript" url="/common/js/jquery-template/jquery.tmpl.min.js" position="body" scene="category"/>
+        <resource type="javascript" url="/common/js/jquery/jquery.form.js" position="body" scene="category"/>
+        <resource type="javascript" url="/common/js/jquery/jquery.validate.js" position="body" scene="category"/>
+        <resource type="javascript" url="/common/js/html5lib/html5form/js/jquery-ui-1.10.3.min.js" position="body" scene="category"/>
+    </resources>
+</component-skin>

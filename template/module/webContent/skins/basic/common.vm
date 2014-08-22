@@ -1,0 +1,53 @@
+#set($themePath = "#_pt_componentSkinBasePath($component)")
+<link rel="stylesheet" href="$themePath/css/style.css">
+<link rel="stylesheet" href="$themePath/css/style_index.css">
+
+#set($dbManagement = $component.result.dbManagement)
+#set($dbTabs = $component.result.dbManagementTabs)
+#set($currentTab = $component.result.currentTab)
+#set($fieldList = $component.result.fieldList)
+#set($fieldsWidth = $component.result.fieldsWidth)
+#set($fieldsData = $component.result.fieldsData)
+#set($indexValues = $component.result.indexValues)
+#set($currentRecord = $component.result.currentRecord)
+#set($formType = $component.result.formType)
+#set($monthInRange = $component.result.monthInRange)
+#set($useIndex = $component.result.useIndex)
+
+##hack 
+#if("$!{_pt_menuNo}" == "")
+	#set($_pt_menuNo = ${_pt_sitePageNo})
+#end	
+
+
+#macro(dynamicform_resultLink $recordNo $formNo)
+	#_pt_getMenuLinkByMenuNo(${_pt_menuNo})?recordNo=$!recordNo&formNo=$!formNo&tabIndex=$currentTab.categoryNo&${component.id}_scene=results
+#end 
+
+#macro(dynamicform_writeLink $recordNo $value)
+	#_pt_getMenuLinkByMenuNo(${_pt_menuNo})?recordNo=$recordNo&formNo=$!value&tabIndex=$currentTab.categoryNo&${component.id}_scene=write
+#end 
+
+#macro(dynamicform_application_writeLink $recordNo $formNo $record)
+	#if("$!pinetreeUtil.getUserNo($request)" != "")
+		#if($!record.answer == false)
+			#_pt_getMenuLinkByMenuNo(${_pt_menuNo})?recordNo=$!recordNo&formNo=$!formNo&tabIndex=$currentTab.categoryNo&${component.id}_scene=write
+		#else
+			javascript:alert('#_pt_message("component.dynamicform.msg.already_apply")');
+		#end
+	#else	
+		javascript:void(0);
+	#end
+#end 
+
+#macro(dynamicform_application_checkLink $recordNo $formNo $record)
+	#if("$!pinetreeUtil.getUserNo($request)" != "")
+		#if($!record.answer == false)
+			javascript:alert('#_pt_message("component.dynamicform.msg.no_apply")');
+		#else
+			#_pt_getMenuLinkByMenuNo(${_pt_menuNo})?recordNo=$!recordNo&formNo=$!formNo&tabIndex=$currentTab.categoryNo&${component.id}_scene=check-result
+		#end
+	#else	
+		javascript:alert('#_pt_message("component.dynamicform.msg.no_login")');
+	#end
+#end 

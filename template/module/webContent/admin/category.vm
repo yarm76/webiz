@@ -1,0 +1,76 @@
+<script type="text/javascript">
+	onChangeDirectApply  = true;
+	reloadWidgetOnChange = true;
+	refreshOnLoadForm    = false;
+
+	var contactUsConfigStore = Ext.create('Ext.data.Store',{
+		fields:[
+				{name: 'contactusConfigName'},
+				{name: 'contactusConfigNo'}
+			],
+			autoLoad: true,
+			proxy: {
+				type: 'ajax',
+				url : '/admin/module/contactus/contactusConfigList.json',
+				reader: {
+					type: 'json',
+					root: 'data'
+				}
+			}
+	});
+
+	var configFormElements = [
+		{
+			xtype: 'container',
+			height: 400,
+			layout:{
+                type: 'vbox'
+			},
+			items: [
+				{
+		            xtype: 'container',
+		            id: 'x-self-configuration-container',
+					height: 120,
+					layout:{
+		                align: 'middle',
+		                type: 'vbox'
+					},
+		            items: [
+		            	{
+		                    xtype: 'label',
+		                    text: 'ContactUs',
+		                    height: 30
+		                },
+		                {
+							xtype: 'combobox',
+			                name: 'config_configNo',
+			                store: contactUsConfigStore,
+			                valueField: 'contactusConfigNo',
+		                	displayField: 'contactusConfigName',
+		                	queryMode: 'local',
+		                	listeners: {
+		                		change: function(obj, arg){
+								}
+			                }
+					    }
+		            ]
+		        } 
+            ]
+		}
+    ];
+
+    onLoadFormAction = function(form, component) {
+       
+       
+    }
+
+    onSubmitFormAction = function (form, component) {
+    }
+ 
+
+  
+
+    var _FIELD_INITIAL_LOAD = true;
+    var _FIELD_INITIAL_LOAD_CHANGE = true;
+    
+</script>

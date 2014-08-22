@@ -1,0 +1,14 @@
+<script type="text/javascript">
+
+	SiteManager.applicationLoader.loadComponentManager({
+		type:'${_pt_componentType}',
+		name:'${_pt_componentName}',
+		basePath:'${_pt_componentBasePath}',
+		id:'x-pt-module-contactusSettingPanel',
+		view: 'SiteManager.view.contactus.ContactusSettingPanel',
+		controllers:[
+			'SiteManager.controller.contactus.ContactusController'
+		]
+	});
+	
+</script>

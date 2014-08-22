@@ -1,0 +1,27 @@
+<div #_pt_componentCommonAttributes($style "")>
+    <div class="pt-editable-content unreset">
+    #if($_pt_deviceType=='mobile')
+		$convertUtil.htmlToMHtml("$!{component.result.content}")
+ 	#else
+        $!{component.result.content}
+ 	#end
+    </div>
+
+#*
+For compatible with old wcontent data which get from DB, not get from config properties. Please do not delete.
+*#
+#if("$!{_pt_VIEW_MODE}"=="design")
+<script type="text/javascript" class="pt-resource-temp">
+    var componentId = '$component.id';
+    var config = Pinetree.component.getComponentConfig(componentId);
+    #if("$!component.result.contentCms" != "")
+        config.wcontentProperties = "cms";
+    #end
+    #if("$!component.result.newContentAdd" != "")
+        config.wcontentProperties = "normal";
+    #end
+    Pinetree.component.setComponentConfig(componentId, config);
+    </script>
+#end
+
+</div>

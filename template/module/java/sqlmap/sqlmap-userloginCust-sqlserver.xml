@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="userLoginCustDao">
+  <select id="getUserInfo" resultType="user" parameterType="map">
+    SELECT 
+    	USERID AS userNo
+	    , USERNM AS userName
+	   	, MAILID AS userEmail
+	   	, USERID AS userID
+	   	, AUTHKEY AS userPassword
+    FROM 
+    	TBLUSERINFO 
+    WHERE 1=1 
+    	<if test="userId!=null">
+    		AND USERID = #{userId}
+    	</if>
+    	<if test="password!=null">
+    		AND (PASSWORD = #{password} OR AUTHKEY = #{password})
+    	</if>
+    	<if test="userType=='E'">
+    		AND USERTYPE IN ('A','B','C','D','F','T')
+    	</if>
+    	<if test="userType=='S'">
+    		AND USERTYPE IN ('E','R','S')
+    	</if>
+    	<if test="userName!=null">
+    		AND USERNM = #{userName}
+    	</if>
+    	<if test="empNo!=null">
+    		AND EMP_NO = #{empNo}
+    	</if>
+    	
+ </select>
+ 
+</mapper>
+ 
