@@ -33,7 +33,7 @@ public class FileUtils {
 		boolean result = false;
 		try {
 			//FileInputStream,FileOutputStream, BufferdReader, BufferedWriter
-			// 생성
+			// 생성test
 			fileInputStream = new FileInputStream(inputFile);
 			fileOutputStream = new FileOutputStream(outputFile);
 			bufferedReader = new BufferedReader(new InputStreamReader(
